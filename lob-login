@@ -1,0 +1,36 @@
+#!/bin/bash
+function _exec(){
+	if test -x "$1" ; then
+		_type=$(/usr/bin/file $1)
+		[[ $_type =~ "shell script" ]] && exec $*
+		[[ $_type =~ "Perl script" ]] && $*
+		[[ $_type =~ "ELF" ]] && $* && exit
+	fi
+	false
+}
+passcode=$(/bin/puzzle)
+read -a arguments <<<$*
+line=$PUZZLE
+if [[ "$line" == "" ]] ; then read line "blargle" ; fi
+if [[ "$passcode" =~ "$line" ]] ; then
+	while true ; do
+		if [[ "$LOB_COMMAND" != "" ]] ; then orig="$LOB_COMMAND" ; break ; fi
+		if [[ "$SSH_ORIGINAL_COMMAND" != "" ]] ; then orig="$SSH_ORIGINAL_COMMAND" ; break ; fi
+		if [[ "${arguments[@]}" != "" ]] ; then orig="${arguments[@]}" ; break ; fi
+		exec
+		break;
+	done
+	read -a args <<<$orig
+	path=$(echo ".:$PATH" | /usr/bin/tr : \ )
+	read -a paths <<<$path
+	cmd=${args[0]}
+	unset args[0]
+	i=0
+	while [[ $i < ${#paths} ]] ; do 
+		_exec "${paths[$i]}/$cmd" "${args[@]}"
+		i=$(($i+1))
+	done
+	_exec $cmd "${args[@]}" || echo "$cmd <${args[@]}> not in \$PATH." 2>&1
+else
+	_exec /bin/bash -c "echo 'Incorrect passcode $line, expected $passcode.'"
+fi

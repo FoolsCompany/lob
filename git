@@ -1,0 +1,2 @@
+#!/bin/sh
+env PUZZLE=$(/bin/puzzle) /usr/bin/git $*

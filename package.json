@@ -1,0 +1,13 @@
+{
+  "author": {
+    "name": "Archie Campbell",
+    "email": "cephalicmarble@hotmail.com",
+    "url": "https://github.com/foolscompany"
+  },
+  "dependencies": {
+		"q" : "*",
+		"moment" : "*"
+	},
+  "description": "Lock down your household sshd",
+  "version": "0.12.09"
+}

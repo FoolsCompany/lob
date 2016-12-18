@@ -1,0 +1,160 @@
+#!/usr/bin/php
+<?php
+//$nonce = [];
+//function salt(){
+//  $counter_value = floor(mktime() / 5);
+//  if(!isset($nonce[$counter_value])){
+//    $buf = `dd if=/dev/random bs=512 count=1 | shasum`;
+//    $nonce[$counter_value] = $buf;
+//  }
+//  return $nonce[$counter_value];
+//}
+
+error_reporting(E_ALL);
+
+//function acl_load_acls(){
+//  return <<<EOL
+////get remote address
+//ip:server 'REMOTE_ADDR'
+////match employee residence
+//user:locate_employee ip
+////stash secret
+//secret&user['secret']
+////stash puzzle
+//puzzle:mkpuzzle secret
+////save the puzzle
+//session 'puzzle' puzzle
+////send it out
+//send puzzle
+//EOL;
+//  return <<<EOL
+////check user
+//ip:server REMOTE_ADDR
+//user:locate_employee ip 
+//username&user['name']
+//puzzle:session 'puzzle'
+////work out the answer
+//solution:workout puzzle
+////check it
+//answer:json answer
+//verify answer solution
+////let them in!
+//ipsec whack --up --name username --tunnelipv4 --id username --host ip --rsasig --pfs --timeout 360
+//ipsec auto --ready
+//EOL;
+//}
+//
+////TODO: Implement all the above, using all of the below...
+//
+//class AclException extends Exception{};
+//
+//function acl_accept($vars,$arg,$pat){
+//  $parts = explode('.',$arg);
+//  if(count($parts)>1){
+//    list($arg,$prop) = $parts;
+//  }
+//  $var = $vars[$arg];
+//  if(isset($prop)){
+//    if(is_object($var)){
+//      $var = $var->$prop;
+//    }elseif(is_array($var)){
+//      $var = $var[$prop];
+//    }
+//  }
+//  if(!fnmatch($pat,$var))
+//    throw new AclException("Match failed : $pat on ($arg) $var");
+//}
+//
+//function acl_json($var){
+//  static $json;
+//  if(!isset($json))
+//    $json = json_decode(file_get_contents("php://input"));
+//  return $json[$var];
+//}
+//
+//function acl_server($vars,$var){
+//  if(isset($_SERVER[$var]))
+//    return $_SERVER[$var];
+//  return '';
+//}
+//
+//function acl_call_user_func($a,$args,$vars){
+//  foreach($args as $k => &$arg){
+//    if($arg[0]==substr($arg,-1) && in_array($arg[0],array("'","\""))){
+//      $arg = substr($arg,1,-1);
+//      continue;
+//    }
+//    if(isset($vars[$arg]))
+//      $arg = $vars[$arg];
+//    else
+//      $arg = trim($arg);
+//    if($arg=='')
+//      unset($args[$k]);
+//  }
+//  array_unshift($args,$vars);
+//  $arr = get_defined_functions();
+//  $func = "acl_".$a;
+//  if(in_array($func,$arr['user']))
+//    return call_user_func_array($func,$args);
+//  return '';
+//}
+//
+//function acl_apply_acl($acl,&$vars = array()){
+//  try{
+//    $ls = explode("\n",$acl);
+//    $l = reset($ls);
+//    do{
+//      if(preg_match('-^//-',$l))
+//        continue;
+//      //var:<acl_func> arg1 arg2 arg3 ...
+//      if(preg_match('/^(\w+):(\w+)( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?$/',$l,$a)){
+//        $vars[$a[1]] = acl_call_user_func($a[2],array_slice($a,3),$vars);
+//      //var=var[key]
+//      }elseif(preg_match('/^(\w+)&(\w+)\[(\S+)\]$/',$l,$a)){
+//        $vars[$a[1]] = &$vars[$a[2]][$a[3]];
+//      //<acl_func> arg1 arg2 arg3
+//      }elseif(preg_match('/^(\w+)( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?( \S+)?$/',$l,$a)){
+//        acl_call_user_func($a[1],array_slice($a,2),$vars);
+//      }
+//      $l = next($ls);
+//      if(!$l)
+//        break;
+//    }while(true);
+//  }catch(Exception $e){
+//    return $e->message;
+//  }
+//  return true;
+//}
+//
+//function acl_user_authenticate($vars){
+//  return true;
+//}
+$secret = trim(file_get_contents(getenv('HOME')."/.lob-secret.txt"));
+$puzzle = __DIR__."/puzzle";
+while($line = readline()){
+	if((int)$line == (int)($num=trim(`$puzzle`,"\n"))){
+		while(true){
+			$orig = getenv('LOB_COMMAND');
+			if($orig)break;
+			$orig = getenv('SSH_ORIGINAL_COMMAND');
+			if($orig)break;
+			if($argc > 1){
+				$args = array_merge($argv);
+				array_shift($args);
+				$orig = implode(' ',$args);
+			}else{
+				$args = array("/bin/bash");
+				$orig = "/bin/bash";
+			}
+			break;
+		}
+		if(!isset($args))
+			$args = explode(' ',$orig);
+		$cmd = array_shift($args);
+
+		if(!file_exists($cmd))
+			$cmd = system("which $cmd");
+		pcntl_exec($cmd,$args,$_ENV);
+	}
+	die("Incorrect passcode $line, expected $num.");
+}
