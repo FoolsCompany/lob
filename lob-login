@@ -1,4 +1,7 @@
 #!/bin/bash
+
+env
+
 function _exec(){
 	if test -x "$1" ; then
 		_type=$(/usr/bin/file $1)
@@ -12,7 +15,7 @@ passcode=$(/bin/puzzle)
 read -a arguments <<<$*
 line=$PUZZLE
 if [[ "$line" == "" ]] ; then read line "blargle" ; fi
-if [[ "$passcode" =~ "$line" ]] ; then
+if [[ "$passcode" == "$line" ]] ; then
 	while true ; do
 		if [[ "$LOB_COMMAND" != "" ]] ; then orig="$LOB_COMMAND" ; break ; fi
 		if [[ "$SSH_ORIGINAL_COMMAND" != "" ]] ; then orig="$SSH_ORIGINAL_COMMAND" ; break ; fi
