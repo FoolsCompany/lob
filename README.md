@@ -1,6 +1,7 @@
 # lob
 
-Your sshd totp implementation: secure your living-roomfrom peeps who see you do the same thing again and again.
+Your sshd totp implementation: secure your living-room from peeps who see you doing
+the same thing again and again.
 
 <pre>
 command="~/foolslob/lob-login /bin/bash" ssh-rsa AAAA...blahblahblah
@@ -22,4 +23,4 @@ If you're worried, just delete puzzle locally and keep it on your phone.
 
 This is an absurd means to make secure the obscure, and obscure the plainly seen patterns of precocious youth.
 
-My only saving grace maybe that this implementation is a darn sight easier to read than that in Google Authenticator!
+Where pam's oath and google-authenticator are not so pliable, you may end up using this in other locking situations.
